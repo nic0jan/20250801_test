@@ -5,22 +5,29 @@ import numpy as np
 from collections import deque
 import random
 
-class DQN(nn.Module):
+class DuelingDQN(nn.Module):
+    """Dueling network architecture for more stable value estimation."""
+
     def __init__(self, input_dim, output_dim):
-        super(DQN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, output_dim)
+        super().__init__()
+        self.fc1 = nn.Linear(input_dim, 128)
+        self.fc2 = nn.Linear(128, 128)
+        # Separate streams for state-value and advantages
+        self.value = nn.Linear(128, 1)
+        self.advantage = nn.Linear(128, output_dim)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
-        return self.fc3(x)
+        value = self.value(x)
+        advantage = self.advantage(x)
+        # Combine value and advantages into Q-values
+        return value + advantage - advantage.mean(dim=1, keepdim=True)
 
 class DQNAgent:
     def __init__(self, state_dim, action_dim, lr=1e-3, gamma=0.99):
-        self.model = DQN(state_dim, action_dim)
-        self.target = DQN(state_dim, action_dim)
+        self.model = DuelingDQN(state_dim, action_dim)
+        self.target = DuelingDQN(state_dim, action_dim)
         self.target.load_state_dict(self.model.state_dict())
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.memory = deque(maxlen=10000)
@@ -53,7 +60,8 @@ class DQNAgent:
         done = torch.FloatTensor(done)
 
         q = self.model(s).gather(1, a.unsqueeze(1)).squeeze()
-        q_next = self.target(s_).max(1)[0]
+        next_actions = self.model(s_).argmax(1).unsqueeze(1)
+        q_next = self.target(s_).gather(1, next_actions).squeeze()
         q_target = r + self.gamma * q_next * (1 - done)
         loss = nn.MSELoss()(q, q_target)
         self.optimizer.zero_grad()
