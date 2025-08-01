@@ -7,6 +7,7 @@ This project is a simple autonomous crypto trading bot based on an enhanced Deep
 - Custom OpenAI Gym environment for trading simulation
 - Dueling Double DQN agent implemented with PyTorch
 - Training and evaluation scripts
+- Live visualization of training rewards with Matplotlib
 
 ## Usage
 
