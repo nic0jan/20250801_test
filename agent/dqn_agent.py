@@ -73,3 +73,7 @@ class DQNAgent:
 
     def update_target(self):
         self.target.load_state_dict(self.model.state_dict())
+
+    def load(self, path):
+        self.model.load_state_dict(torch.load(path))
+        self.target.load_state_dict(torch.load(path))
