@@ -12,3 +12,19 @@ class MarketDataFetcher:
         df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
         return df
+
+    def fetch_live(self):
+        ticker = self.exchange.fetch_ticker(self.symbol)
+        df = pd.DataFrame([
+            {
+                'timestamp': pd.to_datetime(
+                    ticker.get('timestamp', pd.Timestamp.utcnow().timestamp() * 1000), unit='ms'
+                ),
+                'open': ticker.get('open'),
+                'high': ticker.get('high'),
+                'low': ticker.get('low'),
+                'close': ticker.get('close') or ticker.get('last'),
+                'volume': ticker.get('baseVolume'),
+            }
+        ])
+        return df
