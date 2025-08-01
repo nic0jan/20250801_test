@@ -1,9 +1,9 @@
 # Autonomous Crypto Trader (RL)
 
-This project is a simple autonomous crypto trading bot based on Deep Q-Learning (DQN). It fetches historical crypto price data, simulates a trading environment, and trains a DQN agent to trade profitably.
+This project is a simple autonomous crypto trading bot based on Deep Q-Learning (DQN). It fetches historical and live crypto price data, simulates a trading environment, and trains a DQN agent to trade profitably.
 
 ## Features
-- Fetches market data from Binance using ccxt
+- Fetches historical and live market data from Binance using ccxt
 - Custom OpenAI Gym environment for trading simulation
 - DQN agent implemented with PyTorch
 - Training and evaluation scripts
